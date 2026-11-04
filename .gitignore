@@ -1,5 +1,10 @@
 __pycache__/
 *.py[cod]
-.venv/
+
 venv/
-.env
+.venv/
+
+.vscode/
+
+.DS_Store
+Thumbs.db
