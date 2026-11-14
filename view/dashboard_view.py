@@ -1,3 +1,4 @@
+
 import customtkinter as ctk
 from tkinter import Canvas
 from models.dashboard_model import DashboardModel
@@ -13,13 +14,14 @@ BORDER = "#E8EDF2"
 
 class DashboardView(ctk.CTkFrame):
 
-    def __init__(self, master):
+    def __init__(self, master, navigation=None):
         super().__init__(
             master,
             fg_color=BG,
             corner_radius=0
         )
 
+        self.navigation = navigation
         self.model = DashboardModel()
 
         self.grid_columnconfigure(1, weight=1)
@@ -114,7 +116,7 @@ class DashboardView(ctk.CTkFrame):
                 size=13,
                 weight="bold" if active else "normal"
             ),
-            command=lambda: self._aviso_secao(label)
+            command=lambda: self._navegar(label)
         )
 
         button.pack(
@@ -128,6 +130,13 @@ class DashboardView(ctk.CTkFrame):
         self.status_label.configure(
             text=f"Módulo '{secao}' será desenvolvido."
         )
+
+    def _navegar(self, secao):
+
+        if secao == "Vendas" and self.navigation is not None:
+            self.navigation.mostrar_tela("vendas")
+        else:
+            self._aviso_secao(secao)
 
     # CONTEÚDO PRINCIPAL
     def _criar_conteudo(self):
