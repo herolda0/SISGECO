@@ -1,4 +1,15 @@
-class Cliente:
+from abc import ABC, abstractmethod
+
+class Registro(ABC):
+    @abstractmethod
+    def registrar(self):
+        pass
+    def editar(self):
+        pass
+    def deletar(self):
+        pass
+
+class Cliente(Registro):
     def __init__(self, nome, uid):
         self.__nome = nome
         self.__uid = uid
@@ -9,13 +20,13 @@ class Cliente:
     def get_uid(self):
         return self.__uid
 
-    def registrar_cliente(self, nome):
+    def registrar(self, nome):
         return Cliente(nome, 0)
 
-    def deletar_cliente(self):
+    def deletar(self):
         del(self)
 
-class Produto:
+class Produto(Registro):
     def __init__(self, nome, idd, val):
         self.__nome = nome
         self.__idd = idd
@@ -30,10 +41,10 @@ class Produto:
     def get_val(self):
         return self.__val
     
-    def registrar_produto(nome, val):
+    def registrar(nome, val):
         return Produto(nome, 0, val)
 
-class Venda:
+class Venda(Registro):
     def __init__(self, idd, prod, val, cli):
         self.__cli = cli
         self.__idd = idd
@@ -52,10 +63,10 @@ class Venda:
     def get_cli(self):
         return self.__cli
 
-    def registrar_venda(self, prod, cli):
+    def registrar(self, prod, cli):
         return Venda(0, prod, prod.get_val(), cli)
 
-    def deletar_venda(self):
+    def deletar(self):
         del(self)
 
 class Historico_Vendas:
