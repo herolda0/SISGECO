@@ -1,20 +1,29 @@
 
 import customtkinter as ctk
 from tkinter import Canvas
+
 from models.dashboard_model import DashboardModel
+from view.sidebar import Sidebar
 
 
-BG = "#F5F7FA"
-WHITE = "#FFFFFF"
-DARK = "#172B4D"
-MUTED = "#7B8798"
-TEAL = "#159B8E"
-BORDER = "#E8EDF2"
+BG = "#141820"
+WHITE = "#1D2430"
+DARK = "#F0F3F8"
+MUTED = "#9AA6B5"
+TEAL = "#20B8A8"
+BORDER = "#303A49"
 
 
 class DashboardView(ctk.CTkFrame):
 
+    PAGE_NAME = "dashboard"
+    MENU_LABEL = "Visão geral"
+    MENU_ICON = "⌂"
+    MENU_ORDER = 1
+    SHOW_IN_MENU = True
+
     def __init__(self, master, navigation=None):
+
         super().__init__(
             master,
             fg_color=BG,
@@ -27,119 +36,24 @@ class DashboardView(ctk.CTkFrame):
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
-        self._criar_sidebar()
-        self._criar_conteudo()
+        self.criar_sidebar()
+        self.criar_conteudo()
 
-    # MENU LATERAL
-    def _criar_sidebar(self):
+    def criar_sidebar(self):
 
-        sidebar = ctk.CTkFrame(
+        sidebar = Sidebar(
             self,
-            width=225,
-            fg_color=WHITE,
-            corner_radius=0
+            self.navigation,
+            self.PAGE_NAME
         )
 
-        sidebar.grid(row=0, column=0, sticky="nsew")
-        sidebar.grid_propagate(False)
-
-        logo = ctk.CTkFrame(
-            sidebar,
-            fg_color="transparent"
+        sidebar.grid(
+            row=0,
+            column=0,
+            sticky="nsew"
         )
 
-        logo.pack(fill="x", padx=22, pady=(25, 35))
-
-        ctk.CTkLabel(
-            logo,
-            text="SISGECO",
-            text_color="#142B3A",
-            font=ctk.CTkFont(
-                family="Georgia",
-                size=25,
-                weight="bold"
-            )
-        ).pack(anchor="w")
-
-        ctk.CTkLabel(
-            logo,
-            text="GESTÃO COMERCIAL",
-            text_color=MUTED,
-            font=ctk.CTkFont(size=9, weight="bold")
-        ).pack(anchor="w")
-
-        menu = [
-            ("⌂", "Visão geral", True),
-            ("▣", "Vendas", False),
-            ("♙", "Clientes", False),
-            ("▦", "Produtos", False),
-            ("▤", "Estoque", False),
-            ("▥", "Relatórios", False),
-            ("⚙", "Configurações", False),
-        ]
-
-        for icon, label, active in menu:
-            self._menu_item(
-                sidebar,
-                icon,
-                label,
-                active
-            )
-
-        ctk.CTkFrame(
-            sidebar,
-            fg_color="transparent"
-        ).pack(expand=True, fill="both")
-
-        ctk.CTkLabel(
-            sidebar,
-            text="Sistema acadêmico • v1.0",
-            text_color="#A0A9B5",
-            font=ctk.CTkFont(size=10)
-        ).pack(anchor="w", padx=20, pady=20)
-
-    def _menu_item(self, parent, icon, label, active=False):
-
-        color = TEAL if active else WHITE
-        text_color = WHITE if active else "#425166"
-
-        button = ctk.CTkButton(
-            parent,
-            text=f"  {icon}     {label}",
-            anchor="w",
-            height=44,
-            corner_radius=9,
-            fg_color=color,
-            hover_color="#E8F5F3" if not active else "#11877D",
-            text_color=text_color,
-            font=ctk.CTkFont(
-                size=13,
-                weight="bold" if active else "normal"
-            ),
-            command=lambda: self._navegar(label)
-        )
-
-        button.pack(
-            fill="x",
-            padx=12,
-            pady=4
-        )
-
-    def _aviso_secao(self, secao):
-
-        self.status_label.configure(
-            text=f"Módulo '{secao}' será desenvolvido."
-        )
-
-    def _navegar(self, secao):
-
-        if secao == "Vendas" and self.navigation is not None:
-            self.navigation.mostrar_tela("vendas")
-        else:
-            self._aviso_secao(secao)
-
-    # CONTEÚDO PRINCIPAL
-    def _criar_conteudo(self):
+    def criar_conteudo(self):
 
         content = ctk.CTkFrame(
             self,
@@ -155,11 +69,7 @@ class DashboardView(ctk.CTkFrame):
             pady=22
         )
 
-        content.grid_columnconfigure(
-            (0, 1, 2, 3),
-            weight=1
-        )
-
+        content.grid_columnconfigure((0, 1, 2, 3), weight=1)
         content.grid_rowconfigure(3, weight=1)
 
         # CABEÇALHO
@@ -183,20 +93,13 @@ class DashboardView(ctk.CTkFrame):
             fg_color="transparent"
         )
 
-        title_area.grid(
-            row=0,
-            column=0,
-            sticky="w"
-        )
+        title_area.grid(row=0, column=0, sticky="w")
 
         ctk.CTkLabel(
             title_area,
             text="Visão geral",
             text_color=DARK,
-            font=ctk.CTkFont(
-                size=25,
-                weight="bold"
-            )
+            font=ctk.CTkFont(size=25, weight="bold")
         ).pack(anchor="w")
 
         ctk.CTkLabel(
@@ -211,13 +114,9 @@ class DashboardView(ctk.CTkFrame):
             fg_color="transparent"
         )
 
-        right.grid(
-            row=0,
-            column=1,
-            sticky="e"
-        )
+        right.grid(row=0, column=1, sticky="e")
 
-        search = ctk.CTkEntry(
+        ctk.CTkEntry(
             right,
             placeholder_text="⌕  Pesquisar...",
             width=210,
@@ -225,10 +124,9 @@ class DashboardView(ctk.CTkFrame):
             corner_radius=9,
             border_color=BORDER,
             fg_color=WHITE,
-            text_color=DARK
-        )
-
-        search.pack(side="left", padx=(0, 12))
+            text_color=DARK,
+            placeholder_text_color="#778496"
+        ).pack(side="left", padx=(0, 12))
 
         ctk.CTkLabel(
             right,
@@ -241,25 +139,15 @@ class DashboardView(ctk.CTkFrame):
             right,
             text="Administrador",
             text_color=DARK,
-            font=ctk.CTkFont(
-                size=12,
-                weight="bold"
-            )
+            font=ctk.CTkFont(size=12, weight="bold")
         ).pack(side="left")
 
         # INDICADORES
-        for col, item in enumerate(
-            self.model.obter_indicadores()
-        ):
-
-            self._card_indicador(
-                content,
-                col,
-                item
-            )
+        for col, item in enumerate(self.model.obter_indicadores()):
+            self.card_indicador(content, col, item)
 
         # GRÁFICO DE VENDAS
-        chart1 = self._painel(
+        chart1 = self.painel(
             content,
             "Vendas ao longo dos meses"
         )
@@ -273,10 +161,10 @@ class DashboardView(ctk.CTkFrame):
             pady=(18, 9)
         )
 
-        self._grafico_linha(chart1)
+        self.grafico_linha(chart1)
 
         # GRÁFICO DE PRODUTOS
-        chart2 = self._painel(
+        chart2 = self.painel(
             content,
             "Produtos mais vendidos"
         )
@@ -290,10 +178,10 @@ class DashboardView(ctk.CTkFrame):
             pady=(18, 9)
         )
 
-        self._grafico_barras(chart2)
+        self.grafico_barras(chart2)
 
         # VENDAS RECENTES
-        recent = self._painel(
+        recent = self.painel(
             content,
             "Vendas recentes"
         )
@@ -306,16 +194,14 @@ class DashboardView(ctk.CTkFrame):
             pady=(9, 0)
         )
 
-        self._tabela_vendas(recent)
+        self.tabela_vendas(recent)
 
-        self.status_label = ctk.CTkLabel(
+        ctk.CTkLabel(
             content,
             text="Dados demonstrativos",
-            text_color="#98A2B0",
+            text_color="#778496",
             font=ctk.CTkFont(size=10)
-        )
-
-        self.status_label.grid(
+        ).grid(
             row=4,
             column=0,
             columnspan=4,
@@ -324,7 +210,7 @@ class DashboardView(ctk.CTkFrame):
         )
 
     # CARTÕES DE INDICADORES
-    def _card_indicador(self, parent, col, item):
+    def card_indicador(self, parent, col, item):
 
         card = ctk.CTkFrame(
             parent,
@@ -341,48 +227,29 @@ class DashboardView(ctk.CTkFrame):
             padx=5
         )
 
-        card.grid_columnconfigure(0, weight=1)
-
         ctk.CTkLabel(
             card,
             text=item["titulo"],
             text_color=MUTED,
             font=ctk.CTkFont(size=11)
-        ).pack(
-            anchor="w",
-            padx=16,
-            pady=(16, 9)
-        )
+        ).pack(anchor="w", padx=16, pady=(16, 9))
 
         ctk.CTkLabel(
             card,
             text=item["valor"],
             text_color=DARK,
-            font=ctk.CTkFont(
-                size=23,
-                weight="bold"
-            )
-        ).pack(
-            anchor="w",
-            padx=16
-        )
+            font=ctk.CTkFont(size=23, weight="bold")
+        ).pack(anchor="w", padx=16)
 
         ctk.CTkLabel(
             card,
             text=item["variacao"],
             text_color=TEAL,
-            font=ctk.CTkFont(
-                size=11,
-                weight="bold"
-            )
-        ).pack(
-            anchor="w",
-            padx=16,
-            pady=(8, 15)
-        )
+            font=ctk.CTkFont(size=11, weight="bold")
+        ).pack(anchor="w", padx=16, pady=(8, 15))
 
     # PAINÉIS
-    def _painel(self, parent, titulo):
+    def painel(self, parent, titulo):
 
         panel = ctk.CTkFrame(
             parent,
@@ -396,20 +263,13 @@ class DashboardView(ctk.CTkFrame):
             panel,
             text=titulo,
             text_color=DARK,
-            font=ctk.CTkFont(
-                size=14,
-                weight="bold"
-            )
-        ).pack(
-            anchor="w",
-            padx=18,
-            pady=(16, 5)
-        )
+            font=ctk.CTkFont(size=14, weight="bold")
+        ).pack(anchor="w", padx=18, pady=(16, 5))
 
         return panel
 
     # GRÁFICO DE LINHA
-    def _grafico_linha(self, parent):
+    def grafico_linha(self, parent):
 
         data = self.model.obter_vendas_mensais()
 
@@ -441,18 +301,15 @@ class DashboardView(ctk.CTkFrame):
 
             for value in range(0, 26, 5):
 
-                y = bottom - (value / 25) * (
-                    bottom - top
-                )
+                y = bottom - (value / 25) * (bottom - top)
 
                 canvas.create_line(
                     left, y, right, y,
-                    fill="#EDF1F5"
+                    fill="#354050"
                 )
 
                 canvas.create_text(
-                    left - 15,
-                    y,
+                    left - 15, y,
                     text=str(value),
                     fill=MUTED,
                     font=("Arial", 8)
@@ -463,19 +320,17 @@ class DashboardView(ctk.CTkFrame):
 
             for i, (month, value) in enumerate(data):
 
-                x = left + i * (
-                    right - left
-                ) / (len(data) - 1)
+                if len(data) == 1:
+                    x = (left + right) / 2
+                else:
+                    x = left + i * (right - left) / (len(data) - 1)
 
-                y = bottom - (
-                    value / max_value
-                ) * (bottom - top)
+                y = bottom - (value / max_value) * (bottom - top)
 
                 points.extend([x, y])
 
                 canvas.create_text(
-                    x,
-                    bottom + 15,
+                    x, bottom + 15,
                     text=month,
                     fill=MUTED,
                     font=("Arial", 8)
@@ -505,7 +360,7 @@ class DashboardView(ctk.CTkFrame):
         canvas.bind("<Configure>", desenhar)
 
     # GRÁFICO DE BARRAS
-    def _grafico_barras(self, parent):
+    def grafico_barras(self, parent):
 
         data = self.model.obter_produtos_mais_vendidos()
 
@@ -536,40 +391,32 @@ class DashboardView(ctk.CTkFrame):
             bottom = h - 15
 
             max_value = max(
-                value for _, value in data
+                (value for _, value in data),
+                default=1
             )
 
-            row_h = (
-                bottom - top
-            ) / len(data)
+            row_h = (bottom - top) / max(len(data), 1)
 
             for i, (name, value) in enumerate(data):
 
                 y = top + i * row_h + row_h * 0.2
-
                 bar_h = row_h * 0.52
-
-                bar_w = (
-                    value / max_value
-                ) * (right - left)
+                bar_w = (value / max_value) * (right - left)
 
                 canvas.create_text(
                     left - 10,
                     y + bar_h / 2,
                     text=name,
                     anchor="e",
-                    fill="#536174",
+                    fill="#B7C1CF",
                     font=("Arial", 9)
                 )
 
                 canvas.create_rectangle(
-                    left,
-                    y,
-                    left + bar_w,
-                    y + bar_h,
+                    left, y,
+                    left + bar_w, y + bar_h,
                     fill=TEAL,
-                    outline="",
-                    width=0
+                    outline=""
                 )
 
                 canvas.create_text(
@@ -583,7 +430,7 @@ class DashboardView(ctk.CTkFrame):
         canvas.bind("<Configure>", desenhar)
 
     # TABELA DE VENDAS
-    def _tabela_vendas(self, parent):
+    def tabela_vendas(self, parent):
 
         table = ctk.CTkFrame(
             parent,
@@ -607,30 +454,21 @@ class DashboardView(ctk.CTkFrame):
 
         header_row = ctk.CTkFrame(
             table,
-            fg_color="#F6F8FA",
+            fg_color="#28313E",
             corner_radius=6
         )
 
-        header_row.pack(
-            fill="x",
-            pady=(0, 5)
-        )
+        header_row.pack(fill="x", pady=(0, 5))
 
         for i, header in enumerate(headers):
 
-            header_row.grid_columnconfigure(
-                i,
-                weight=1
-            )
+            header_row.grid_columnconfigure(i, weight=1)
 
             ctk.CTkLabel(
                 header_row,
                 text=header,
-                text_color=MUTED,
-                font=ctk.CTkFont(
-                    size=9,
-                    weight="bold"
-                ),
+                text_color="#AEB9C8",
+                font=ctk.CTkFont(size=9, weight="bold"),
                 anchor="w"
             ).grid(
                 row=0,
@@ -653,17 +491,12 @@ class DashboardView(ctk.CTkFrame):
 
                 if value == "Concluída":
                     color = TEAL
-
                 elif value == "Pendente":
-                    color = "#D98A28"
-
+                    color = "#E6A34D"
                 else:
                     color = DARK
 
-                row.grid_columnconfigure(
-                    i,
-                    weight=1
-                )
+                row.grid_columnconfigure(i, weight=1)
 
                 ctk.CTkLabel(
                     row,
@@ -682,5 +515,5 @@ class DashboardView(ctk.CTkFrame):
             ctk.CTkFrame(
                 table,
                 height=1,
-                fg_color="#EFF2F5"
+                fg_color="#303A49"
             ).pack(fill="x")
