@@ -4,6 +4,8 @@ import inspect
 import pkgutil
 
 import view
+from models.models_backend.modelos import SistemaModel
+from models.dashboard_model import DashboardModel
 
 
 class Navigation:
@@ -14,9 +16,10 @@ class Navigation:
         self.tela_atual = None
         self.pagina_atual = None
 
-        # Dados temporários
-        self.vendas = []
-        self.clientes = []
+        
+        
+        self.sistema = SistemaModel()
+        self.dashboard_model = DashboardModel(self.sistema)
 
         self.paginas = {}
 

@@ -1,10 +1,33 @@
+# Python: arquivos gerados
 __pycache__/
 *.py[cod]
+*$py.class
 
-venv/
+# Ambientes virtuais
 .venv/
+venv/
+env/
+ENV/
 
+# Dados locais e arquivos temporarios do SISGECO
+data/*.json
+data/*.tmp
+
+# Variaveis de ambiente e segredos
+.env
+.env.*
+!.env.example
+
+# Editores e IDEs
 .vscode/
+.idea/
 
+# Sistema operacional
 .DS_Store
 Thumbs.db
+Desktop.ini
+
+# Logs e arquivos temporarios
+*.log
+*.tmp
+*.bak

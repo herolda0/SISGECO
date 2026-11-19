@@ -31,7 +31,7 @@ class DashboardView(ctk.CTkFrame):
         )
 
         self.navigation = navigation
-        self.model = DashboardModel()
+        self.model = navigation.dashboard_model
 
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
@@ -72,7 +72,7 @@ class DashboardView(ctk.CTkFrame):
         content.grid_columnconfigure((0, 1, 2, 3), weight=1)
         content.grid_rowconfigure(3, weight=1)
 
-        # CABEÇALHO
+        
         header = ctk.CTkFrame(
             content,
             fg_color="transparent"
@@ -142,11 +142,11 @@ class DashboardView(ctk.CTkFrame):
             font=ctk.CTkFont(size=12, weight="bold")
         ).pack(side="left")
 
-        # INDICADORES
+        
         for col, item in enumerate(self.model.obter_indicadores()):
             self.card_indicador(content, col, item)
 
-        # GRÁFICO DE VENDAS
+        
         chart1 = self.painel(
             content,
             "Vendas ao longo dos meses"
@@ -163,7 +163,7 @@ class DashboardView(ctk.CTkFrame):
 
         self.grafico_linha(chart1)
 
-        # GRÁFICO DE PRODUTOS
+        
         chart2 = self.painel(
             content,
             "Produtos mais vendidos"
@@ -180,7 +180,7 @@ class DashboardView(ctk.CTkFrame):
 
         self.grafico_barras(chart2)
 
-        # VENDAS RECENTES
+        
         recent = self.painel(
             content,
             "Vendas recentes"
@@ -198,7 +198,7 @@ class DashboardView(ctk.CTkFrame):
 
         ctk.CTkLabel(
             content,
-            text="Dados demonstrativos",
+            text="Indicadores calculados com os dados cadastrados",
             text_color="#778496",
             font=ctk.CTkFont(size=10)
         ).grid(
@@ -209,7 +209,7 @@ class DashboardView(ctk.CTkFrame):
             pady=(8, 0)
         )
 
-    # CARTÕES DE INDICADORES
+    
     def card_indicador(self, parent, col, item):
 
         card = ctk.CTkFrame(
@@ -248,7 +248,7 @@ class DashboardView(ctk.CTkFrame):
             font=ctk.CTkFont(size=11, weight="bold")
         ).pack(anchor="w", padx=16, pady=(8, 15))
 
-    # PAINÉIS
+    
     def painel(self, parent, titulo):
 
         panel = ctk.CTkFrame(
@@ -268,7 +268,7 @@ class DashboardView(ctk.CTkFrame):
 
         return panel
 
-    # GRÁFICO DE LINHA
+    
     def grafico_linha(self, parent):
 
         data = self.model.obter_vendas_mensais()
@@ -299,9 +299,10 @@ class DashboardView(ctk.CTkFrame):
             top = 18
             bottom = h - 32
 
-            for value in range(0, 26, 5):
+            escala = max(5, ((max((valor for _, valor in data), default=0) + 4) // 5) * 5)
+            for value in range(0, escala + 1, max(1, escala // 5)):
 
-                y = bottom - (value / 25) * (bottom - top)
+                y = bottom - (value / escala) * (bottom - top)
 
                 canvas.create_line(
                     left, y, right, y,
@@ -315,8 +316,18 @@ class DashboardView(ctk.CTkFrame):
                     font=("Arial", 8)
                 )
 
+            if not any(value for _, value in data):
+                canvas.create_text(
+                    (left + right) / 2,
+                    (top + bottom) / 2,
+                    text="Ainda não há vendas registradas.",
+                    fill=MUTED,
+                    font=("Arial", 10)
+                )
+                return
+
             points = []
-            max_value = 25
+            max_value = max(1, max(value for _, value in data))
 
             for i, (month, value) in enumerate(data):
 
@@ -325,7 +336,7 @@ class DashboardView(ctk.CTkFrame):
                 else:
                     x = left + i * (right - left) / (len(data) - 1)
 
-                y = bottom - (value / max_value) * (bottom - top)
+                y = bottom - (value / escala) * (bottom - top)
 
                 points.extend([x, y])
 
@@ -359,7 +370,7 @@ class DashboardView(ctk.CTkFrame):
 
         canvas.bind("<Configure>", desenhar)
 
-    # GRÁFICO DE BARRAS
+    
     def grafico_barras(self, parent):
 
         data = self.model.obter_produtos_mais_vendidos()
@@ -395,6 +406,16 @@ class DashboardView(ctk.CTkFrame):
                 default=1
             )
 
+            if not data:
+                canvas.create_text(
+                    (left + right) / 2,
+                    (top + bottom) / 2,
+                    text="Ainda não há produtos vendidos.",
+                    fill=MUTED,
+                    font=("Arial", 10)
+                )
+                return
+
             row_h = (bottom - top) / max(len(data), 1)
 
             for i, (name, value) in enumerate(data):
@@ -429,7 +450,7 @@ class DashboardView(ctk.CTkFrame):
 
         canvas.bind("<Configure>", desenhar)
 
-    # TABELA DE VENDAS
+    
     def tabela_vendas(self, parent):
 
         table = ctk.CTkFrame(
@@ -478,7 +499,16 @@ class DashboardView(ctk.CTkFrame):
                 pady=10
             )
 
-        for sale in self.model.obter_vendas_recentes():
+        vendas_recentes = self.model.obter_vendas_recentes()
+        if not vendas_recentes:
+            ctk.CTkLabel(
+                table,
+                text="Nenhuma venda registrada até o momento.",
+                text_color=MUTED,
+                font=ctk.CTkFont(size=11)
+            ).pack(anchor="w", padx=10, pady=18)
+
+        for sale in vendas_recentes:
 
             row = ctk.CTkFrame(
                 table,
